@@ -158,7 +158,7 @@
     font-weight: bold;
     font-size: 0.95rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    margin: 0 auto 14px auto;
+    margin: 12px auto 14px auto;
     border: 1px solid #e0e0e0;
     width: max-content;
     max-width: 95%;
@@ -301,6 +301,7 @@
     </div>
   </div>
 
+  <!-- Top Controls (Above Puzzle) -->
   <div class="bar">
     <button id="gen" class="btn">New puzzle</button>
     <div class="seed-group">
@@ -309,12 +310,14 @@
       <button id="btn-load-seed" class="btn sm secondary">Load</button>
       <button id="btn-share" class="btn sm outline" title="Copy shareable link for students">🔗 Share Link</button>
     </div>
-    <button id="p1" class="btn secondary">Print: 1 puzzle per page (A4)</button>
-    <button id="p2" class="btn secondary">Print: 2 puzzles per page (A4)</button>
-    <button id="pans" class="btn secondary">Print answer sheet</button>
     <button id="clr" class="btn outline">Clear answers</button>
   </div>
 
+  <!-- The Puzzle -->
+  <div class="wrap"><div id="screen"></div></div>
+  <div id="status"></div>
+
+  <!-- Below Puzzle: Stats in one row -->
   <div class="stats-bar">
     <span>Green Boxes: <span id="stats-correct">0 / 0</span></span>
     <span>First Try: <span id="stats-first-try">0 / 0</span></span>
@@ -322,8 +325,12 @@
     <span>Accuracy: <span id="stats-accuracy">100%</span></span>
   </div>
 
-  <div class="wrap"><div id="screen"></div></div>
-  <div id="status"></div>
+  <!-- Below Stats: Printing options -->
+  <div class="bar">
+    <button id="p1" class="btn secondary">Print: 1 puzzle per page (A4)</button>
+    <button id="p2" class="btn secondary">Print: 2 puzzles per page (A4)</button>
+    <button id="pans" class="btn secondary">Print answer sheet</button>
+  </div>
 
   <div id="claim-cert-container" style="text-align: center; margin-top: 15px;" class="hidden">
     <button class="btn highlight" onclick="openCertModal()">🎉 Claim Your Certificate!</button>
@@ -369,7 +376,7 @@
   </div>
 
   <div class="cert-meta">
-    Date: <span id="cert-date"></span>
+    Date: <span id="cert-date"></span> &nbsp;|&nbsp; Puzzle Seed: <span id="cert-seed"></span>
   </div>
 </div>
 
@@ -556,7 +563,9 @@ function generate(seedToUse){
         }
       }
 
-      return build(L,sol,given);
+      const grid = build(L,sol,given);
+      grid.seed = currentSeed;
+      return grid;
     }
   }
 }
@@ -669,9 +678,10 @@ function render(P,el,interactive,onChange,showAnswers=false){
 let cur,curInputs;
 const screenEl=document.getElementById('screen');
 
-function printSheetHTML(titleSuffix = '', showName = true){
+function printSheetHTML(titleSuffix = '', showName = true, seed = ''){
   const title = titleSuffix ? `Nugget's Cross Number (${titleSuffix})` : "Nugget's Cross Number Puzzle";
   const nameHTML = showName ? '<div class="print-name-line">Name: ______________________</div>' : '';
+  const seedHTML = seed ? ` &nbsp;|&nbsp; <strong>Seed: ${seed}</strong>` : '';
   
   return `<div class="sheet">
     <div class="print-header-container">
@@ -679,7 +689,7 @@ function printSheetHTML(titleSuffix = '', showName = true){
         <img src="Nugget.png" class="print-nugget-img" alt="Nugget" onerror="this.src='https://api.dicebear.com/7.x/thumbs/svg?seed=Nugget&backgroundColor=f1c40f'">
         <div class="print-header-titles">
           <div class="head">${title}</div>
-          <div class="sub">Write numbers into the grey squares to make all equations true statements.</div>
+          <div class="sub">Write numbers into the grey squares to make all equations true statements.${seedHTML}</div>
         </div>
       </div>
       ${nameHTML}
@@ -760,6 +770,7 @@ function generateCertificate() {
   const secs = timeDiff % 60;
   document.getElementById('cert-time').textContent = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
   document.getElementById('cert-date').textContent = new Date().toLocaleDateString();
+  document.getElementById('cert-seed').textContent = currentSeed;
   
   document.getElementById('modal-overlay').classList.add('hidden');
   document.getElementById('app').classList.add('hidden');
@@ -833,7 +844,7 @@ function printSheets(mode){
     const pr=document.getElementById('print');pr.innerHTML='';
     if(mode === 'ans'){
       const w=document.createElement('div');
-      w.innerHTML=printSheetHTML('Answer Key', false);
+      w.innerHTML=printSheetHTML('Answer Key', false, cur ? cur.seed : currentSeed);
       const s=w.firstChild;
       render(cur,s.querySelector('.grid'),false,null,true);
       pr.appendChild(s);
@@ -843,7 +854,7 @@ function printSheets(mode){
       const list=[cur];if(mode===2)list.push(generate());
       list.forEach((P, idx)=>{
         const w=document.createElement('div');
-        w.innerHTML=printSheetHTML('', true);
+        w.innerHTML=printSheetHTML('', true, P.seed || currentSeed);
         const s=w.firstChild;
         if(mode === 2 && idx === 1){
           s.classList.add('second-sheet');
