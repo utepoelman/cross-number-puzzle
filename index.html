@@ -296,7 +296,7 @@
     <div id="nugget-header-text">
       <h1>Nugget's Cross Number Puzzle</h1>
       <div class="speech-bubble" id="nugget-speech">
-        Write numbers into the grey squares to make all equations true statements!
+        Write numbers into the grey squares to make all equations true statements! (Hint: All numbers are 1- or 2-digit numbers: 1 – 99)
       </div>
     </div>
   </div>
@@ -689,7 +689,7 @@ function printSheetHTML(titleSuffix = '', showName = true, seed = ''){
         <img src="Nugget.png" class="print-nugget-img" alt="Nugget" onerror="this.src='https://api.dicebear.com/7.x/thumbs/svg?seed=Nugget&backgroundColor=f1c40f'">
         <div class="print-header-titles">
           <div class="head">${title}</div>
-          <div class="sub">Write numbers into the grey squares to make all equations true statements.${seedHTML}</div>
+          <div class="sub">Write numbers into the grey squares to make all equations true statements. (Hint: All numbers are 1- or 2-digit numbers: 1 – 99)${seedHTML}</div>
         </div>
       </div>
       ${nameHTML}
@@ -733,7 +733,7 @@ function update(){
     if(totalMistakes > 0){
       document.getElementById('nugget-speech').textContent = `Keep going! You have solved ${okCount} out of ${total} boxes.`;
     } else {
-      document.getElementById('nugget-speech').textContent = 'Write numbers into the grey squares to make all equations true statements!';
+      document.getElementById('nugget-speech').textContent = 'Write numbers into the grey squares to make all equations true statements! (Hint: All numbers are 1- or 2-digit numbers: 1 – 99)';
     }
   }
 }
